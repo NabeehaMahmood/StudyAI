@@ -2,12 +2,16 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/upload');
+const { protect } = require('../middleware/auth');
 const {
   uploadDocument,
   listDocuments,
   getDocument,
   deleteDocument,
 } = require('../controllers/documentController');
+
+// All document routes require authentication
+router.use(protect);
 
 // POST /api/documents/upload — Upload and process a PDF
 router.post('/upload', upload.single('pdf'), uploadDocument);

@@ -15,6 +15,7 @@ const requestLogger = require('./middleware/requestLogger');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const healthRoutes = require('./routes/healthRoutes');
@@ -46,6 +47,7 @@ if (!fs.existsSync(logsDir)) {
 // ── Routes ─────────────────────────────────────────────
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
 

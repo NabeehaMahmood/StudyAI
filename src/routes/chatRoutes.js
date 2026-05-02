@@ -1,12 +1,16 @@
 // backend/src/routes/chatRoutes.js
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/auth');
 const {
   queryDocument,
   listSessions,
   getSessionMessages,
   deleteSession,
 } = require('../controllers/chatController');
+
+// All chat routes require authentication
+router.use(protect);
 
 // POST /api/chat/query — Ask a question about a document
 router.post('/query', queryDocument);
