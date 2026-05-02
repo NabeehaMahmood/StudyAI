@@ -3,6 +3,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const fs = require('fs');
 
@@ -13,6 +14,7 @@ const errorHandler = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
 
 // Route imports
+const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const healthRoutes = require('./routes/healthRoutes');
@@ -26,6 +28,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(requestLogger);
 
 // Ensure upload directory exists
@@ -42,6 +45,7 @@ if (!fs.existsSync(logsDir)) {
 
 // ── Routes ─────────────────────────────────────────────
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
 
