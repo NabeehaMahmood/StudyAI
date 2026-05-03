@@ -51,25 +51,16 @@ const sendTokenResponse = (user, statusCode, res, rememberMe = false) => {
  */
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, passwordConfirm } = req.body;
-
-    // Validation
-    if (!name || !email || !password || !passwordConfirm) {
-      return next(new AppError('Please provide all required fields', 400));
-    }
-
-    if (password !== passwordConfirm) {
-      return next(new AppError('Passwords do not match', 400));
-    }
-
-    if (password.length < 8) {
-      return next(new AppError('Password must be at least 8 characters', 400));
-    }
+    const { name, email, password } = req.body;
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return next(new AppError('Email already in use', 400));
+      return res.status(400).json({
+        success: false,
+        message: 'Email already in use',
+        errors: { email: 'Email already in use' },
+      });
     }
 
     // Create user (password will be hashed by pre-save hook)
@@ -95,21 +86,24 @@ exports.login = async (req, res, next) => {
   try {
     const { email, password, rememberMe } = req.body;
 
-    // Validation
-    if (!email || !password) {
-      return next(new AppError('Please provide email and password', 400));
-    }
-
     // Find user and include password field (it's not selected by default)
     const user = await User.findOne({ email }).select('+password');
 
     if (!user || !(await user.matchPassword(password))) {
       logger.warn(`Failed login attempt for email: ${email}`);
-      return next(new AppError('Invalid email or password', 401));
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password',
+        errors: { credentials: 'Invalid email or password' },
+      });
     }
 
     if (!user.isActive) {
-      return next(new AppError('Your account has been deactivated', 401));
+      return res.status(401).json({
+        success: false,
+        message: 'Your account has been deactivated',
+        errors: { account: 'Your account has been deactivated' },
+      });
     }
 
     logger.info(`User logged in: ${email}`);
