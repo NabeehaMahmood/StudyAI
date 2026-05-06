@@ -1,4 +1,3 @@
-// backend/src/routes/documentRoutes.js
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/upload');
@@ -10,11 +9,11 @@ const {
   deleteDocument,
 } = require('../controllers/documentController');
 
-// All document routes require authentication
-router.use(protect);
-
-// POST /api/documents/upload — Upload and process a PDF
+// POST /api/documents/upload — Upload and process a PDF (temporarily public for testing)
 router.post('/upload', upload.single('pdf'), uploadDocument);
+
+// All other document routes require authentication
+router.use(protect);
 
 // GET /api/documents — List user's documents
 router.get('/', listDocuments);
