@@ -6,16 +6,16 @@ require('dotenv').config();
 const config = {
   // Server
   port: parseInt(process.env.PORT, 10) || 5000,
+  host: process.env.HOST || 'localhost',
   nodeEnv: process.env.NODE_ENV || 'development',
 
   // MongoDB
-  mongoUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-assistant',
+  mongoUri: process.env.MONGODB_URL || 'mongodb://localhost:27017/study-assistant',
 
   // LM Studio — chat and embeddings
   lmStudio: {
-    baseUrl: process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234/v1',
-    chatModel: process.env.LM_STUDIO_CHAT_MODEL || 'google/gemma-4-e2b',
-    embeddingModel: process.env.LM_STUDIO_EMBEDDING_MODEL || 'text-embedding-nomic-embed-text-v1.5',
+    baseUrl: process.env.LM_STUDIO_URL || 'http://localhost:1234/v1',
+    chatModel: process.env.LM_STUDIO_MODEL || 'neural-chat',
   },
 
   // ChromaDB
@@ -38,20 +38,47 @@ const config = {
   // Upload
   upload: {
     maxFileSizeMB: parseInt(process.env.MAX_FILE_SIZE_MB, 10) || 50,
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 52428800,
     dir: process.env.UPLOAD_DIR || './uploads',
   },
 
-  // CORS
+  // CORS & Frontend
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  socketOrigins: (process.env.SOCKET_ORIGINS || 'http://localhost:3000').split(','),
 
-  // Email
+  // Email Configuration
   email: {
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT, 10) || 587,
-    secure: process.env.EMAIL_SECURE === 'true',
-    user: process.env.EMAIL_USER || '',
-    pass: process.env.EMAIL_PASS || '',
-    toAddress: process.env.EMAIL_TO || 'nabeehamahmood7@gmail.com',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT, 10) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
+    user: process.env.EMAIL_USER,
+    password: process.env.EMAIL_PASSWORD,
+    fromName: process.env.EMAIL_FROM_NAME || 'AI Study Assistant',
+    fromEmail: process.env.EMAIL_FROM_EMAIL || process.env.EMAIL_USER,
+    adminEmail: process.env.ADMIN_EMAIL || 'asadkhurshid20012001@gmail.com',
+  },
+
+  // JWT
+  jwt: {
+    secret: process.env.JWT_SECRET || 'your-secret-key-change-this',
+    expiration: process.env.JWT_EXPIRATION || '7d',
+  },
+
+  // Session
+  session: {
+    secret: process.env.SESSION_SECRET || 'your-session-secret-change-this',
+    inactivityTimeout: parseInt(process.env.INACTIVITY_TIMEOUT, 10) || 15,
+  },
+
+  // API Rate Limiting
+  rateLimit: {
+    windowMs: parseInt(process.env.API_RATE_WINDOW, 10) * 60 * 1000 || 15 * 60 * 1000,
+    max: parseInt(process.env.API_RATE_LIMIT, 10) || 100,
+  },
+
+  // Logging
+  logging: {
+    level: process.env.LOG_LEVEL || 'debug',
   },
 };
 
