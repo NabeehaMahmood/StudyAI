@@ -29,9 +29,9 @@ const sendTokenResponse = (user, statusCode, res, rememberMe = false) => {
   // Cookie options
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // ngrok uses HTTPS
     maxAge,
-    sameSite: 'strict',
+    sameSite: 'lax', // Allow cookies in cross-site requests
   };
 
   res.cookie('token', token, cookieOptions);
