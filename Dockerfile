@@ -17,4 +17,4 @@ COPY scripts/ ./scripts/
 EXPOSE 5000
 
 # Run seed script and start server
-CMD npm run seed && npm run dev
+CMD npm run seed && npm start

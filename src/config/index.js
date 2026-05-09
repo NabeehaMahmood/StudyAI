@@ -11,10 +11,10 @@ const config = {
   // MongoDB
   mongoUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-assistant',
 
-  // LM Studio — OpenAI-compatible endpoints
+  // LM Studio — chat and embeddings
   lmStudio: {
     baseUrl: process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234/v1',
-    chatModel: process.env.LM_STUDIO_CHAT_MODEL || 'qwen2.5-14b-instruct',
+    chatModel: process.env.LM_STUDIO_CHAT_MODEL || 'google/gemma-4-e2b',
     embeddingModel: process.env.LM_STUDIO_EMBEDDING_MODEL || 'text-embedding-nomic-embed-text-v1.5',
   },
 

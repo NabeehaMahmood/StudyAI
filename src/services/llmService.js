@@ -1,5 +1,5 @@
 // backend/src/services/llmService.js
-// Calls LM Studio OpenAI-compatible chat/completions endpoint
+// Calls LM Studio's OpenAI-compatible chat/completions endpoint
 
 const OpenAI = require('openai');
 const config = require('../config');

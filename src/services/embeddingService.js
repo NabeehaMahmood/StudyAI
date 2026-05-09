@@ -5,10 +5,9 @@ const OpenAI = require('openai');
 const config = require('../config');
 const logger = require('../utils/logger');
 
-// Initialize OpenAI client pointed at LM Studio
 const openai = new OpenAI({
   baseURL: config.lmStudio.baseUrl,
-  apiKey: 'lm-studio', // LM Studio doesn't validate API keys but requires the header
+  apiKey: 'lm-studio',
 });
 
 /**
