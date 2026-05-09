@@ -19,7 +19,7 @@ async function uploadDocument(req, res, next) {
       return res.status(400).json({ success: false, error: 'No PDF file uploaded' });
     }
 
-    const userId = req.body.userId || req.headers['x-user-id'] || 'default-user';
+    const userId = req.user.id;
 
     // Create document record in MongoDB (status: processing)
     const doc = await Document.create({
@@ -91,12 +91,12 @@ async function uploadDocument(req, res, next) {
 }
 
 /**
- * GET /api/documents?userId=xxx
- * List all documents for a user.
+ * GET /api/documents
+ * List all documents for the authenticated user.
  */
 async function listDocuments(req, res, next) {
   try {
-    const userId = req.query.userId || req.headers['x-user-id'] || 'default-user';
+    const userId = req.user.id;
 
     const documents = await Document.find({ userId })
       .select('originalName pageCount totalChunks status createdAt fileSize')

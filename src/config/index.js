@@ -43,6 +43,16 @@ const config = {
 
   // CORS
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+
+  // Email
+  email: {
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT, 10) || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    user: process.env.EMAIL_USER || '',
+    pass: process.env.EMAIL_PASS || '',
+    toAddress: process.env.EMAIL_TO || 'nabeehamahmood7@gmail.com',
+  },
 };
 
 module.exports = config;

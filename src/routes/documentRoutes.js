@@ -9,11 +9,11 @@ const {
   deleteDocument,
 } = require('../controllers/documentController');
 
-// POST /api/documents/upload — Upload and process a PDF (temporarily public for testing)
-router.post('/upload', upload.single('pdf'), uploadDocument);
-
-// All other document routes require authentication
+// All document routes require authentication
 router.use(protect);
+
+// POST /api/documents/upload — Upload and process a PDF
+router.post('/upload', upload.single('pdf'), uploadDocument);
 
 // GET /api/documents — List user's documents
 router.get('/', listDocuments);

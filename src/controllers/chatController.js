@@ -11,11 +11,12 @@ const logger = require('../utils/logger');
  * POST /api/chat/query
  * Process a user question against an uploaded document.
  *
- * Body: { userId, documentId, sessionId?, query }
+ * Body: { documentId, sessionId?, query }
  */
 async function queryDocument(req, res, next) {
   try {
-    const { userId, documentId, sessionId, query } = req.body;
+    const { documentId, sessionId, query } = req.body;
+    const userId = req.user.id;
 
     // Validate required fields
     if (!query || query.trim().length === 0) {
@@ -25,12 +26,13 @@ async function queryDocument(req, res, next) {
       return res.status(400).json({ success: false, error: 'documentId is required' });
     }
 
-    const effectiveUserId = userId || req.headers['x-user-id'] || 'default-user';
-
-    // Verify document exists and is ready
+    // Verify document exists, belongs to user, and is ready
     const doc = await Document.findById(documentId);
     if (!doc) {
       return res.status(404).json({ success: false, error: 'Document not found' });
+    }
+    if (doc.userId !== userId) {
+      return res.status(403).json({ success: false, error: 'Not authorized to query this document' });
     }
     if (doc.status !== 'ready') {
       return res.status(422).json({
@@ -41,7 +43,7 @@ async function queryDocument(req, res, next) {
 
     // Run the full RAG pipeline
     const result = await processQuery({
-      userId: effectiveUserId,
+      userId,
       documentId: doc._id.toString(),
       sessionId,
       collectionName: doc.chromaCollectionName,
@@ -59,12 +61,12 @@ async function queryDocument(req, res, next) {
 }
 
 /**
- * GET /api/chat/sessions?userId=xxx&documentId=xxx
- * List chat sessions for a user/document.
+ * GET /api/chat/sessions?documentId=xxx
+ * List chat sessions for the authenticated user/document.
  */
 async function listSessions(req, res, next) {
   try {
-    const userId = req.query.userId || req.headers['x-user-id'] || 'default-user';
+    const userId = req.user.id;
     const { documentId } = req.query;
 
     const filter = { userId };
