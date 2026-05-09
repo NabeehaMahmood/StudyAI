@@ -1,12 +1,14 @@
 // backend/src/services/llmService.js
 // Calls LM Studio's OpenAI-compatible chat/completions endpoint
+// Uses Qwen2.5 Coder for chat responses
 
 const OpenAI = require('openai');
 const config = require('../config');
 const logger = require('../utils/logger');
 
+// OpenAI client for chat (Qwen2.5 Coder)
 const openai = new OpenAI({
-  baseURL: config.lmStudio.baseUrl,
+  baseURL: config.lmStudio.chat.url,
   apiKey: 'lm-studio',
 });
 
@@ -28,7 +30,7 @@ async function chatCompletion(messages, opts = {}) {
   const startTime = Date.now();
 
   const response = await openai.chat.completions.create({
-    model: config.lmStudio.chatModel,
+    model: config.lmStudio.chat.model,
     messages,
     temperature: opts.temperature ?? config.llm.temperature,
     max_tokens: opts.maxTokens ?? config.llm.maxTokens,

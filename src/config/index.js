@@ -12,10 +12,18 @@ const config = {
   // MongoDB
   mongoUri: process.env.MONGODB_URL || 'mongodb://localhost:27017/study-assistant',
 
-  // LM Studio — chat and embeddings
+  // LM Studio — separate endpoints for chat and embeddings
   lmStudio: {
-    baseUrl: process.env.LM_STUDIO_URL || 'http://localhost:1234/v1',
-    chatModel: process.env.LM_STUDIO_MODEL || 'neural-chat',
+    // Chat Model (Qwen2.5 Coder) - for responses and code generation
+    chat: {
+      url: process.env.LM_STUDIO_CHAT_URL || 'http://localhost:1234/v1',
+      model: process.env.LM_STUDIO_CHAT_MODEL || 'qwen2.5-coder',
+    },
+    // Embedding Model - for RAG and vector search
+    embedding: {
+      url: process.env.LM_STUDIO_EMBEDDING_URL || 'http://localhost:1235/v1',
+      model: process.env.LM_STUDIO_EMBEDDING_MODEL || 'text-embedding-nomic-embed-text-v1.5',
+    },
   },
 
   // ChromaDB

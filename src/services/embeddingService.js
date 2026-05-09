@@ -1,12 +1,14 @@
 // backend/src/services/embeddingService.js
 // Generates embeddings via LM Studio's OpenAI-compatible /v1/embeddings endpoint
+// Uses text-embedding model for RAG vector search
 
 const OpenAI = require('openai');
 const config = require('../config');
 const logger = require('../utils/logger');
 
+// OpenAI client for embeddings (text-embedding model)
 const openai = new OpenAI({
-  baseURL: config.lmStudio.baseUrl,
+  baseURL: config.lmStudio.embedding.url,
   apiKey: 'lm-studio',
 });
 
@@ -19,7 +21,7 @@ async function generateEmbedding(text) {
   const startTime = Date.now();
 
   const response = await openai.embeddings.create({
-    model: config.lmStudio.embeddingModel,
+    model: config.lmStudio.embedding.model,
     input: text,
   });
 
@@ -45,7 +47,7 @@ async function generateEmbeddingsBatch(texts) {
     const batch = texts.slice(i, i + BATCH_SIZE);
 
     const response = await openai.embeddings.create({
-      model: config.lmStudio.embeddingModel,
+      model: config.lmStudio.embedding.model,
       input: batch,
     });
 
