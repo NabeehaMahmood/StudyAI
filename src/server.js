@@ -91,7 +91,9 @@ function extractTokenFromCookie(cookie) {
 // Socket.io authentication middleware
 io.use(async (socket, next) => {
   try {
-    const token = extractTokenFromCookie(socket.handshake.headers.cookie);
+    const token =
+      socket.handshake.auth?.token ||
+      extractTokenFromCookie(socket.handshake.headers.cookie);
     if (!token) {
       return next(new Error('Authentication token missing'));
     }
@@ -162,7 +164,8 @@ const start = async () => {
   await connectDB();
   httpServer.listen(config.port, () => {
     logger.info(`Server running on port ${config.port} [${config.nodeEnv}]`);
-    logger.info(`LM Studio endpoint: ${config.lmStudio.baseUrl}`);
+    logger.info(`LM Studio Chat endpoint: ${config.lmStudio.chat.url}`);
+    logger.info(`LM Studio Embedding endpoint: ${config.lmStudio.embedding.url}`);
     logger.info(`ChromaDB endpoint: ${config.chromaUrl}`);
     logger.info(`Socket.io initialized on port ${config.port}`);
   });
