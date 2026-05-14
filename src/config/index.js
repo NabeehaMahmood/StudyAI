@@ -10,7 +10,7 @@ const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
 
   // MongoDB
-  mongoUri: process.env.MONGODB_URL || 'mongodb://localhost:27017/study-assistant',
+  mongoUri: process.env.MONGODB_URI || process.env.MONGODB_URL || 'mongodb://localhost:27017/study-assistant',
 
   // LM Studio — separate endpoints for chat and embeddings
   lmStudio: {
