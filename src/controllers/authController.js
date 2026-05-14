@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
 const logger = require('../utils/logger');
 
@@ -145,15 +146,25 @@ exports.forgotPassword = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    // In production, send email with reset link
-    // For now, log the reset token (DEV ONLY - remove in production)
-    logger.info(`Password reset token generated for ${email}: ${resetToken}`);
+    // Build reset URL and send email
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    try {
+      await sendPasswordResetEmail(email, resetToken, resetUrl);
+      logger.info(`Password reset email sent to ${email}`);
+    } catch (emailErr) {
+      // Roll back token so user can try again
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+      logger.error(`Failed to send password reset email to ${email}:`, emailErr.message);
+      return next(new AppError('Failed to send reset email. Please try again later.', 500));
+    }
 
     res.status(200).json({
       success: true,
       message: 'Password reset email sent. Check your inbox.',
-      // REMOVE THIS IN PRODUCTION - only for development
-      resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined,
     });
   } catch (error) {
     next(error);
