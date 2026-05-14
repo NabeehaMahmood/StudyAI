@@ -1,186 +1,102 @@
 // backend/src/services/emailService.js
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verify transporter configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Email transporter error:', error);
-  } else {
-    console.log('✓ Email service ready');
-  }
-});
+const FROM = `${process.env.EMAIL_FROM_NAME || 'AI Study Assistant'} <${process.env.EMAIL_FROM_EMAIL || 'onboarding@resend.dev'}>`;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'nabeehamahmood7@gmail.com';
 
-// Send contact form email
 const sendContactEmail = async (name, email, subject, message) => {
-  try {
-    const adminEmailContent = `
+  const htmlBody = message.replace(/\n/g, '<br>');
+
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    replyTo: email,
+    subject: `[Contact Form] ${subject}`,
+    html: `
       <h2>New Contact Form Submission</h2>
       <p><strong>From:</strong> ${name} (${email})</p>
       <p><strong>Subject:</strong> ${subject}</p>
       <p><strong>Message:</strong></p>
-      <p>${message.replace(/\n/g, '<br>')}</p>
+      <p>${htmlBody}</p>
       <hr>
-      <p><small>This is an automated email from AI Study Assistant contact form.</small></p>
-    `;
+      <p><small>Sent via AI Study Assistant contact form.</small></p>
+    `,
+  });
 
-    const userConfirmationEmail = `
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'We received your message - AI Study Assistant',
+    html: `
       <h2>We received your message</h2>
       <p>Hi ${name},</p>
-      <p>Thank you for reaching out to AI Study Assistant. We've received your message and will get back to you as soon as possible.</p>
-      <p><strong>Your Message:</strong></p>
-      <p>${message.replace(/\n/g, '<br>')}</p>
+      <p>Thank you for reaching out. We'll get back to you as soon as possible.</p>
+      <p><strong>Your message:</strong></p>
+      <p>${htmlBody}</p>
       <hr>
       <p>Best regards,<br>AI Study Assistant Team</p>
-    `;
+    `,
+  });
 
-    // Send email to admin
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_EMAIL}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: `[Contact Form] ${subject}`,
-      html: adminEmailContent,
-      replyTo: email,
-    });
-
-    // Send confirmation email to user
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_EMAIL}>`,
-      to: email,
-      subject: 'We received your message - AI Study Assistant',
-      html: userConfirmationEmail,
-    });
-
-    console.log(`✓ Contact email sent from ${email} to ${process.env.ADMIN_EMAIL}`);
-    return { success: true, message: 'Email sent successfully' };
-  } catch (error) {
-    console.error('Error sending contact email:', error);
-    throw new Error(`Failed to send email: ${error.message}`);
-  }
+  console.log(`Contact email sent from ${email}`);
+  return { success: true };
 };
 
-// Send password reset email
 const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {
-  try {
-    const emailContent = `
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'Password Reset - AI Study Assistant',
+    html: `
       <h2>Password Reset Request</h2>
-      <p>You requested a password reset for your AI Study Assistant account.</p>
-      <p>Click the link below to reset your password (valid for 24 hours):</p>
-      <p><a href="${resetUrl}" style="background-color: #22D3EE; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
-      <p>Or copy this link: ${resetUrl}</p>
+      <p>Click the link below to reset your password (valid for 10 minutes):</p>
+      <p><a href="${resetUrl}" style="background:#22D3EE;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">Reset Password</a></p>
+      <p>Or copy: ${resetUrl}</p>
       <hr>
-      <p>If you didn't request this, please ignore this email.</p>
-      <p>Best regards,<br>AI Study Assistant Team</p>
-    `;
+      <p>If you didn't request this, ignore this email.</p>
+    `,
+  });
 
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_EMAIL}>`,
-      to: email,
-      subject: 'Password Reset - AI Study Assistant',
-      html: emailContent,
-    });
-
-    console.log(`✓ Password reset email sent to ${email}`);
-    return { success: true, message: 'Reset email sent' };
-  } catch (error) {
-    console.error('Error sending password reset email:', error);
-    throw new Error(`Failed to send reset email: ${error.message}`);
-  }
+  console.log(`Password reset email sent to ${email}`);
+  return { success: true };
 };
 
-// Send welcome email
 const sendWelcomeEmail = async (name, email) => {
-  try {
-    const emailContent = `
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'Welcome to AI Study Assistant!',
+    html: `
       <h2>Welcome to AI Study Assistant!</h2>
       <p>Hi ${name},</p>
-      <p>Thank you for signing up for AI Study Assistant. We're excited to help you with your learning journey!</p>
-      <h3>Getting Started:</h3>
-      <ol>
-        <li>Log in to your account</li>
-        <li>Upload your study documents (PDF, DOCX, TXT)</li>
-        <li>Ask questions about your documents</li>
-        <li>Get AI-powered answers grounded in your content</li>
-      </ol>
-      <h3>Features:</h3>
-      <ul>
-        <li>📚 Document-based Q&A with RAG technology</li>
-        <li>🔒 100% private - all processing is local</li>
-        <li>⚡ Fast AI responses powered by local LLM</li>
-        <li>📊 Organized document management</li>
-      </ul>
-      <p>If you have any questions, feel free to <a href="https://study-assistant.app/contact">contact us</a>.</p>
+      <p>Thank you for signing up. Upload your study documents and start asking questions!</p>
       <hr>
       <p>Best regards,<br>AI Study Assistant Team</p>
-    `;
+    `,
+  });
 
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_EMAIL}>`,
-      to: email,
-      subject: 'Welcome to AI Study Assistant!',
-      html: emailContent,
-    });
-
-    console.log(`✓ Welcome email sent to ${email}`);
-    return { success: true, message: 'Welcome email sent' };
-  } catch (error) {
-    console.error('Error sending welcome email:', error);
-    throw new Error(`Failed to send welcome email: ${error.message}`);
-  }
+  console.log(`Welcome email sent to ${email}`);
+  return { success: true };
 };
 
-// Send admin notification email
 const sendAdminNotification = async (subject, message, metadata = {}) => {
-  try {
-    const emailContent = `
-      <h2>${subject}</h2>
-      <p>${message}</p>
-      ${
-        Object.keys(metadata).length > 0
-          ? `
-        <h3>Details:</h3>
-        <ul>
-          ${Object.entries(metadata)
-            .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
-            .join('')}
-        </ul>
-      `
-          : ''
-      }
-      <hr>
-      <p><small>This is an automated system notification from AI Study Assistant.</small></p>
-    `;
+  const metaHtml = Object.keys(metadata).length
+    ? `<ul>${Object.entries(metadata).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}</ul>`
+    : '';
 
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_EMAIL}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: `[System Notification] ${subject}`,
-      html: emailContent,
-    });
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `[System Notification] ${subject}`,
+    html: `<h2>${subject}</h2><p>${message}</p>${metaHtml}<hr><small>Automated notification from AI Study Assistant.</small>`,
+  });
 
-    console.log(`✓ Admin notification email sent`);
-    return { success: true };
-  } catch (error) {
-    console.error('Error sending admin notification:', error);
-    throw new Error(`Failed to send notification: ${error.message}`);
-  }
+  return { success: true };
 };
 
 module.exports = {
-  transporter,
   sendContactEmail,
   sendPasswordResetEmail,
   sendWelcomeEmail,
