@@ -47,16 +47,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(requestLogger);
 
-// Ensure upload directory exists
-const uploadDir = path.resolve(config.upload.dir);
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure upload/logs directories exist (skip silently if not writable in production)
+try {
+  const uploadDir = path.resolve(config.upload.dir);
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+} catch (e) {
+  console.warn('Could not create uploads directory:', e.message);
 }
-
-// Ensure logs directory exists
-const logsDir = path.resolve('logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+try {
+  const logsDir = path.resolve('logs');
+  if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+} catch (e) {
+  console.warn('Could not create logs directory:', e.message);
 }
 
 // ── Routes ─────────────────────────────────────────────
