@@ -51,7 +51,7 @@ const sendTokenResponse = (user, statusCode, res, rememberMe = false) => {
  */
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, rememberMe } = req.body;
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
@@ -71,7 +71,7 @@ exports.register = async (req, res, next) => {
     });
 
     logger.info(`User registered: ${email}`);
-    sendTokenResponse(user, 201, res, false);
+    sendTokenResponse(user, 201, res, rememberMe || false);
   } catch (error) {
     next(error);
   }
