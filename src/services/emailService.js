@@ -3,7 +3,10 @@ const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = `${process.env.EMAIL_FROM_NAME || 'AI Study Assistant'} <${process.env.EMAIL_FROM_EMAIL || 'onboarding@resend.dev'}>`;
+// Must be a Resend-verified domain. Use onboarding@resend.dev for testing.
+const FROM_EMAIL = process.env.EMAIL_FROM_EMAIL || 'onboarding@resend.dev';
+const FROM_NAME = process.env.EMAIL_FROM_NAME || 'AI Study Assistant';
+const FROM = `${FROM_NAME} <${FROM_EMAIL}>`;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'nabeehamahmood7@gmail.com';
 
 const sendResend = async (payload) => {
