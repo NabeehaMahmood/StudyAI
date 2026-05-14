@@ -23,6 +23,7 @@ const sendResend = async (payload) => {
 const sendContactEmail = async (name, email, subject, message) => {
   const htmlBody = message.replace(/\n/g, '<br>');
 
+  // Send admin notification only — user confirmation requires a verified domain
   await sendResend({
     from: FROM,
     to: ADMIN_EMAIL,
@@ -39,22 +40,7 @@ const sendContactEmail = async (name, email, subject, message) => {
     `,
   });
 
-  await sendResend({
-    from: FROM,
-    to: email,
-    subject: 'We received your message - AI Study Assistant',
-    html: `
-      <h2>We received your message</h2>
-      <p>Hi ${name},</p>
-      <p>Thank you for reaching out. We'll get back to you as soon as possible.</p>
-      <p><strong>Your message:</strong></p>
-      <p>${htmlBody}</p>
-      <hr>
-      <p>Best regards,<br>AI Study Assistant Team</p>
-    `,
-  });
-
-  console.log(`Contact email sent from ${email}`);
+  console.log(`Contact email sent to admin for submission from ${email}`);
   return { success: true };
 };
 
