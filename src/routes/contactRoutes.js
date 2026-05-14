@@ -40,7 +40,11 @@ router.post('/', async (req, res) => {
 
     // Send emails in the background
     sendContactEmail(name, email, subject, message).catch((err) => {
-      console.error('Contact email failed (background):', err.message);
+      console.error('Contact email failed:', err.message, {
+        EMAIL_USER: process.env.EMAIL_USER ? 'set' : 'MISSING',
+        EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'set' : 'MISSING',
+        SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
+      });
     });
   } catch (error) {
     console.error('Contact form error:', error);
