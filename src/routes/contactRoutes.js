@@ -32,12 +32,15 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Send emails (admin + user confirmation)
-    await sendContactEmail(name, email, subject, message);
-
+    // Respond immediately — don't block on SMTP
     res.json({
       success: true,
       message: 'Thank you! Your message has been sent successfully. We will get back to you soon.',
+    });
+
+    // Send emails in the background
+    sendContactEmail(name, email, subject, message).catch((err) => {
+      console.error('Contact email failed (background):', err.message);
     });
   } catch (error) {
     console.error('Contact form error:', error);
