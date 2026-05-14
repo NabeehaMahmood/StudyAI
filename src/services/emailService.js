@@ -7,11 +7,13 @@ const FROM = `${process.env.EMAIL_FROM_NAME || 'AI Study Assistant'} <${process.
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'nabeehamahmood7@gmail.com';
 
 const sendResend = async (payload) => {
+  console.log('Resend send attempt:', { from: payload.from, to: payload.to, subject: payload.subject });
   const { data, error } = await resend.emails.send(payload);
   if (error) {
     console.error('Resend API error:', JSON.stringify(error));
     throw new Error(error.message || 'Resend rejected the email');
   }
+  console.log('Resend accepted:', JSON.stringify(data));
   return data;
 };
 
