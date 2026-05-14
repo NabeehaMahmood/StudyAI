@@ -6,10 +6,19 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = `${process.env.EMAIL_FROM_NAME || 'AI Study Assistant'} <${process.env.EMAIL_FROM_EMAIL || 'onboarding@resend.dev'}>`;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'nabeehamahmood7@gmail.com';
 
+const sendResend = async (payload) => {
+  const { data, error } = await resend.emails.send(payload);
+  if (error) {
+    console.error('Resend API error:', JSON.stringify(error));
+    throw new Error(error.message || 'Resend rejected the email');
+  }
+  return data;
+};
+
 const sendContactEmail = async (name, email, subject, message) => {
   const htmlBody = message.replace(/\n/g, '<br>');
 
-  await resend.emails.send({
+  await sendResend({
     from: FROM,
     to: ADMIN_EMAIL,
     replyTo: email,
@@ -25,7 +34,7 @@ const sendContactEmail = async (name, email, subject, message) => {
     `,
   });
 
-  await resend.emails.send({
+  await sendResend({
     from: FROM,
     to: email,
     subject: 'We received your message - AI Study Assistant',
@@ -45,7 +54,7 @@ const sendContactEmail = async (name, email, subject, message) => {
 };
 
 const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {
-  await resend.emails.send({
+  await sendResend({
     from: FROM,
     to: email,
     subject: 'Password Reset - AI Study Assistant',
@@ -64,7 +73,7 @@ const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {
 };
 
 const sendWelcomeEmail = async (name, email) => {
-  await resend.emails.send({
+  await sendResend({
     from: FROM,
     to: email,
     subject: 'Welcome to AI Study Assistant!',
@@ -86,7 +95,7 @@ const sendAdminNotification = async (subject, message, metadata = {}) => {
     ? `<ul>${Object.entries(metadata).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}</ul>`
     : '';
 
-  await resend.emails.send({
+  await sendResend({
     from: FROM,
     to: ADMIN_EMAIL,
     subject: `[System Notification] ${subject}`,
